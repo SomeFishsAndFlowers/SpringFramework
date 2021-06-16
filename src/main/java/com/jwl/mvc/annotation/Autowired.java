@@ -3,7 +3,9 @@ package com.jwl.mvc.annotation;
 
 import java.lang.annotation.*;
 
-//@Target({ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.PARAMETER})
+/**
+ * @author jiwenlong
+ */ //@Target({ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.PARAMETER})
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
