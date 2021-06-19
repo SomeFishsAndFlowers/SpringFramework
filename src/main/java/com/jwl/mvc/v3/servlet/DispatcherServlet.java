@@ -3,9 +3,7 @@ package com.jwl.mvc.v3.servlet;
 import com.jwl.mvc.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,23 +18,37 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+/**
+ * @author jiwenlong
+ */
 public class DispatcherServlet extends HttpServlet {
 
     public static final Logger log = LoggerFactory.getLogger(DispatcherServlet.class);
 
-    // 保存配置文件的内容
+    /**
+     * 保存配置文件的内容
+     */
     private final Properties configContext = new Properties();
 
-    // 保存扫描到的所有类名
+    /**
+     * 保存扫描到的所有类名
+     */
     private final List<String> classNames = new ArrayList<>();
 
-    // ioc容器，为了简单，暂时不使用CurrentHashMap
+    /**
+     * ioc容器，为了简单，暂时不使用CurrentHashMap
+     */
     private final Map<String, Object> ioc = new HashMap<>();
 
-    // url与method的映射
+    /**
+     * url与method的映射
+     */
     private final List<Handler> handlerMapping = new ArrayList<>();
 
-    // web.xml文件servlet的初始化参数key
+    /**
+     * web.xml文件servlet的初始化参数key
+     */
     private static final String CONTEXT_LOCATION_PARAM = "contextConfigLocation";
 
 
@@ -44,21 +56,22 @@ public class DispatcherServlet extends HttpServlet {
 
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         this.doPost(req, resp);
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         this.doDispatch(req, resp);
     }
 
     private Handler getHandler(HttpServletRequest req) {
         String contextPath = req.getContextPath();
-        String requestURI = req.getRequestURI();
-        requestURI = requestURI.replace(contextPath, "").replaceAll("/+", "/");
+        String requestUri = req.getRequestURI();
+        log.debug("request uri: {}", requestUri);
+        requestUri = requestUri.replace(contextPath, "").replaceAll("/+", "/");
         for (Handler handler : handlerMapping) {
-            Matcher matcher = handler.pattern.matcher(requestURI);
+            Matcher matcher = handler.pattern.matcher(requestUri);
             if (matcher.matches()) {
                 return handler;
             }
@@ -71,17 +84,18 @@ public class DispatcherServlet extends HttpServlet {
             Handler handler = getHandler(req);
             if (handler == null) {
                 resp.getWriter().write("404 Not Found");
-            } else {
+            }
+            else {
                 Class<?>[] parameterTypes = handler.method.getParameterTypes();
                 Object[] params = new Object[parameterTypes.length];
                 Map<String, String[]> parameterMap = req.getParameterMap();
                 for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
-                    String value = Arrays.toString(entry.getValue()).
-                            replaceAll("\\[|\\]", "").
-                            replaceAll("\\s", ",");
                     if (!handler.paramIndexMapping.containsKey(entry.getKey())) {
                         continue;
                     }
+                    String value = Arrays.toString(entry.getValue()).
+                            replaceAll("\\[|\\]", "").
+                            replaceAll("\\s", ",");
                     int index = handler.paramIndexMapping.get(entry.getKey());
                     params[index] = convert(parameterTypes[index], value);
                 }
@@ -114,7 +128,7 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     @Override
-    public void init(ServletConfig config) throws ServletException {
+    public void init(ServletConfig config) {
         log.info("initialize DispatcherServlet...");
         try {
             doLoadConfig(config.getInitParameter(CONTEXT_LOCATION_PARAM));
@@ -130,7 +144,7 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     private void doLoadConfig(String contextConfigLocation) {
-        try (InputStream is = CLASS_LOADER.getResourceAsStream(contextConfigLocation)) {
+        try (InputStream is = CLASS_LOADER.getResourceAsStream(contextConfigLocation.split(":")[1])) {
             String classPath = Objects.requireNonNull(CLASS_LOADER.getResource("/")).getFile();
             log.debug("context location: {}{}", classPath, contextConfigLocation);
             configContext.load(is);
@@ -232,9 +246,9 @@ public class DispatcherServlet extends HttpServlet {
     private String toFirstLowerCase(String className) {
         String[] strings = className.trim().split("\\.");
         String name = strings[strings.length - 1];
-        final int MASK = 0x00100000;
+        final int mask = 0x00100000;
         char[] chars = name.toCharArray();
-        chars[0] ^= MASK;
+        chars[0] ^= mask;
         name = new String(chars);
         StringBuilder beanName = new StringBuilder();
         for (int i = 0; i < strings.length - 1; i++) {

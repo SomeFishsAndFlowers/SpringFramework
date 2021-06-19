@@ -2,6 +2,9 @@ package com.jwl.mvc.annotation;
 
 import java.lang.annotation.*;
 
+/**
+ * @author jiwenlong
+ */
 @Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
