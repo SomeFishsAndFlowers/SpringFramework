@@ -7,10 +7,10 @@
 
   <servlet>
     <servlet-name>DispatcherServlet</servlet-name>
-    <servlet-class>com.jwl.mvc.v3.servlet.DispatcherServlet</servlet-class>
+    <servlet-class>com.jwl.spring.framework.webmvc.servlet.DispatcherServlet</servlet-class>
     <init-param>
       <param-name>contextConfigLocation</param-name>
-      <param-value>application.properties</param-value>
+      <param-value>classpath:application.properties</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
