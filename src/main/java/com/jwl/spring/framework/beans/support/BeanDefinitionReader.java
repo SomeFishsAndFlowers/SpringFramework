@@ -61,6 +61,7 @@ public class BeanDefinitionReader {
                 for (Class<?> i : interfaces) {
                     beanDefinitions.add(doCreateBeanDefinition(i.getName(), beanClass.getName()));
                 }
+//                beanDefinitions.add(doCreateBeanDefinition(className, beanClass.getName()));
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

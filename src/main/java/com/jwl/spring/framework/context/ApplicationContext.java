@@ -1,16 +1,24 @@
 package com.jwl.spring.framework.context;
 
+import com.jwl.spring.framework.annotation.Controller;
+import com.jwl.spring.framework.annotation.Service;
+import com.jwl.spring.framework.annotation.Autowired;
 import com.jwl.spring.framework.beans.BeanWrapper;
 import com.jwl.spring.framework.beans.config.BeanDefinition;
+import com.jwl.spring.framework.beans.config.BeanPostProcessor;
 import com.jwl.spring.framework.beans.support.BeanDefinitionReader;
 import com.jwl.spring.framework.beans.support.DefaultListableBeanFactory;
 import com.jwl.spring.framework.core.BeanFactory;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @author jiwenlong
+ */
 public class ApplicationContext extends DefaultListableBeanFactory implements BeanFactory {
 
     private String[] configLocations;
@@ -82,12 +90,88 @@ public class ApplicationContext extends DefaultListableBeanFactory implements Be
      *  1. 保留原来的oop关系
      *  2. 需要对它进行扩展、增强（为以后的AOP打基础）
      * @param beanName bean name
-     * @return
-     * @throws Exception
+     * @return bean instance
      */
     @Override
-    public Object getBean(String beanName) throws Exception {
-        // todo
+    public Object getBean(String beanName) {
+        BeanDefinition beanDefinition = super.beanDefinitionMap.get(beanName);
+
+        try {
+            //生成通知事件
+            BeanPostProcessor beanPostProcessor = new BeanPostProcessor();
+            Object instance = instanceBean(beanDefinition);
+            if (null == instance) {
+                return null;
+            }
+            beanPostProcessor.postProcessBeforeInitialization(instance, beanName);
+            BeanWrapper beanWrapper = new BeanWrapper(instance);
+
+            factoryBeanInstanceCache.put(beanName, beanWrapper);
+
+            beanPostProcessor.postProcessAfterInitialization(instance);
+
+            populateBean(beanName, instance);
+            // 通过这样调用，相当于给我们自己留有了可操作的空间
+            return this.factoryBeanInstanceCache.get(beanName).getWrappedInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void populateBean(String beanName, Object instance) {
+
+        Class<?> clazz = instance.getClass();
+
+        if (!(clazz.isAnnotationPresent(Controller.class))
+                || clazz.isAnnotationPresent(Service.class)) {
+            return;
+        }
+
+        Field[] fields = clazz.getDeclaredFields();
+
+        for (Field field : fields) {
+            if (!field.isAnnotationPresent(Autowired.class)) {
+                continue;
+            }
+            Autowired autowired = field.getAnnotation(Autowired.class);
+
+            String autowiredBeanName = autowired.value().trim();
+
+            if ("".equals(autowiredBeanName)) {
+                autowiredBeanName = field.getType().getName();
+            }
+
+            field.setAccessible(true);
+
+            try {
+                field.set(instance, factoryBeanInstanceCache.get(autowiredBeanName).getWrappedInstance());
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private Object instanceBean(BeanDefinition beanDefinition) {
+
+        Object instance = null;
+
+        String className = beanDefinition.getBeanClassName();
+
+        try {
+            if (factoryBeanObjectCache.containsKey(className)) {
+                instance = factoryBeanObjectCache.get(className);
+            }
+            else {
+                Class<?> clazz = Class.forName(className);
+                instance = clazz.newInstance();
+                factoryBeanObjectCache.put(className, instance);
+            }
+            return instance;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return null;
     }
 
@@ -97,11 +181,11 @@ public class ApplicationContext extends DefaultListableBeanFactory implements Be
     }
 
     public String[] getBeanDefinitionNames() {
-        return beanDefinitionMap.keySet().toArray(new String[0]);
+        return super.beanDefinitionMap.keySet().toArray(new String[0]);
     }
 
     public int getBeanDefinitionCount() {
-        return beanDefinitionMap.size();
+        return super.beanDefinitionMap.size();
     }
 
     public Properties getConfig() {
