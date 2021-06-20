@@ -4,6 +4,7 @@ import com.jwl.spring.framework.annotation.Controller;
 import com.jwl.spring.framework.annotation.RequestMapping;
 import com.jwl.spring.framework.context.ApplicationContext;
 import com.jwl.spring.framework.webmvc.*;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.ServletConfig;
@@ -45,18 +46,16 @@ public class DispatcherServlet extends HttpServlet {
     private ApplicationContext context;
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         doPost(req, resp);
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
             doDispatch(req, resp);
         } catch (Exception e) {
-
-            resp.getWriter().write("error 500");
-
+            processDispatchResult(req, resp, new ModelAndView("500"));
             e.printStackTrace();
         }
     }
@@ -87,7 +86,7 @@ public class DispatcherServlet extends HttpServlet {
         return null;
     }
 
-    private void processDispatchResult(HttpServletRequest req, HttpServletResponse resp, ModelAndView modelAndView) throws Exception {
+    private void processDispatchResult(HttpServletRequest req, HttpServletResponse resp, ModelAndView modelAndView) {
         if (modelAndView == null) {
             return;
         }
@@ -97,7 +96,11 @@ public class DispatcherServlet extends HttpServlet {
         for (ViewResolver viewResolver : viewResolvers) {
             View view = viewResolver.resolverViewName(modelAndView.getViewName(), null);
             if (view != null) {
-                view.render(modelAndView.getModel(), req, resp);
+                try {
+                    view.render(modelAndView.getModel(), req, resp);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 return;
             }
         }
@@ -127,7 +130,7 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     @Override
-    public void init(ServletConfig config) throws ServletException {
+    public void init(ServletConfig config) {
 
         context = new ApplicationContext(config.getInitParameter(LOCATION));
 

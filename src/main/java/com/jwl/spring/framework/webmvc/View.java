@@ -21,7 +21,7 @@ public class View {
 
     private File viewFile;
 
-    private final Pattern pattern = Pattern.compile("¥\\{[^\\}]+\\}", Pattern.CASE_INSENSITIVE);
+    private final Pattern pattern = Pattern.compile("\\$\\s*\\{[^\\}]+\\}", Pattern.CASE_INSENSITIVE);
 
     public View(File templateFile) {
         this.viewFile = templateFile;
@@ -44,7 +44,7 @@ public class View {
 
                 while (matcher.find()) {
                     String paramName = matcher.group();
-                    paramName = paramName.replaceAll("¥\\{[^\\}]+\\}", "");
+                    paramName = paramName.replaceAll("\\$|\\{|\\}|\\s", "");
 
                     Object paramValue = model.get(paramName);
 

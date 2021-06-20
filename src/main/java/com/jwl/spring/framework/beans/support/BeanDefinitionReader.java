@@ -1,11 +1,13 @@
 package com.jwl.spring.framework.beans.support;
 
 import com.jwl.spring.framework.beans.config.BeanDefinition;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -13,6 +15,7 @@ import java.util.Properties;
  * 对配置文件进行查找、读取、解析
  * @author wenlo
  */
+@Slf4j
 public class BeanDefinitionReader {
 
     private List<String> registerBeanClasses = new ArrayList<>();
@@ -21,8 +24,9 @@ public class BeanDefinitionReader {
     private final String SCAN_PACKAGE = "scanPackage";
 
     public BeanDefinitionReader(String[] configLocations) {
+        log.debug(Arrays.toString(configLocations));
         try (InputStream is = getClass().getClassLoader().
-                getResourceAsStream(configLocations[0].replace("classPath:", ""))) {
+                getResourceAsStream(configLocations[0].replace("classpath:", ""))) {
             config.load(is);
         } catch (Exception e) {
             e.printStackTrace();
@@ -61,7 +65,6 @@ public class BeanDefinitionReader {
                 for (Class<?> i : interfaces) {
                     beanDefinitions.add(doCreateBeanDefinition(i.getName(), beanClass.getName()));
                 }
-//                beanDefinitions.add(doCreateBeanDefinition(className, beanClass.getName()));
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

@@ -9,6 +9,7 @@ import com.jwl.spring.framework.beans.config.BeanPostProcessor;
 import com.jwl.spring.framework.beans.support.BeanDefinitionReader;
 import com.jwl.spring.framework.beans.support.DefaultListableBeanFactory;
 import com.jwl.spring.framework.core.BeanFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author jiwenlong
  */
+@Slf4j
 public class ApplicationContext extends DefaultListableBeanFactory implements BeanFactory {
 
     private String[] configLocations;
@@ -123,8 +125,8 @@ public class ApplicationContext extends DefaultListableBeanFactory implements Be
 
         Class<?> clazz = instance.getClass();
 
-        if (!(clazz.isAnnotationPresent(Controller.class))
-                || clazz.isAnnotationPresent(Service.class)) {
+        if (!(clazz.isAnnotationPresent(Controller.class)
+                || clazz.isAnnotationPresent(Service.class))) {
             return;
         }
 
@@ -143,8 +145,13 @@ public class ApplicationContext extends DefaultListableBeanFactory implements Be
             }
 
             field.setAccessible(true);
-
+            log.debug("autowired field: {}.{} - {}", instance.getClass().getName(), field.getName(), autowiredBeanName);
             try {
+                log.debug("factoryBeanInstanceCache: {}", factoryBeanInstanceCache.get(autowiredBeanName));
+                if (!factoryBeanInstanceCache.containsKey(autowiredBeanName)) {
+                    log.debug("recursive getBean: {}", autowiredBeanName);
+                    getBean(autowiredBeanName);
+                }
                 field.set(instance, factoryBeanInstanceCache.get(autowiredBeanName).getWrappedInstance());
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
