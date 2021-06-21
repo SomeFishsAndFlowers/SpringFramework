@@ -3,7 +3,6 @@ package com.jwl.spring.framework.webmvc;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
@@ -64,6 +63,7 @@ public class View {
         }finally {
             ra.close();
         }
+        resp.setHeader("Content-Type", DEFAULT_CONTENT_TYPE);
         resp.setCharacterEncoding(StandardCharsets.UTF_8.toString());
         resp.getWriter().write(sb.toString());
     }

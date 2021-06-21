@@ -4,18 +4,13 @@ import com.jwl.spring.framework.annotation.Controller;
 import com.jwl.spring.framework.annotation.RequestMapping;
 import com.jwl.spring.framework.context.ApplicationContext;
 import com.jwl.spring.framework.webmvc.*;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,6 +61,7 @@ public class DispatcherServlet extends HttpServlet {
 
         if (handler == null) {
             processDispatchResult(req, resp, new ModelAndView("404"));
+            return;
         }
 
         HandlerAdapter ha = getHandlerAdapter(handler);
@@ -117,7 +113,7 @@ public class DispatcherServlet extends HttpServlet {
         String contextPath = req.getContextPath();
 
         url = url.replace(contextPath, "").replaceAll("/+", "/");
-
+        log.debug("request url: {}", url);
         for (HandlerMapping handlerMapping : handlerMappings) {
             Matcher matcher = handlerMapping.getPattern().matcher(url);
 

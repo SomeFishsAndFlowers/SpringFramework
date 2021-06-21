@@ -1,6 +1,6 @@
 package com.jwl.spring.demo.controller;
 
-import com.jwl.mvc.annotation.RequestParam;
+import com.jwl.spring.framework.annotation.RequestParam;
 import com.jwl.spring.demo.service.IModifiedService;
 import com.jwl.spring.demo.service.IQueryService;
 import com.jwl.spring.framework.annotation.Autowired;
@@ -55,6 +55,7 @@ public class MyController {
     private ModelAndView out(HttpServletResponse response, String result) {
 
         try {
+            response.setHeader("Content-Type", "text/json;charset=utf-8");
             response.getWriter().write(result);
         } catch (IOException e) {
             e.printStackTrace();
