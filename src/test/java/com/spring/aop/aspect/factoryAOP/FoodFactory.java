@@ -17,6 +17,11 @@ public class FoodFactory implements Factory {
         System.out.println("selling food to " + address);
     }
 
+    @Override
+    public void testArgs(String address, int name) {
+        System.out.println("testArgs: " + address);
+    }
+
     public void testArgsAnnotation(FoodFactory freshFactory) {
 
     }

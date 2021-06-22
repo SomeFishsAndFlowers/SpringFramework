@@ -6,4 +6,5 @@ public interface Factory {
 
     void delivery(String address);
 
+    void testArgs(String address, int name);
 }

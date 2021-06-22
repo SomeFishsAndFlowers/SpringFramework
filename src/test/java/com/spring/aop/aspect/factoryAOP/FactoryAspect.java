@@ -10,13 +10,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class FactoryAspect {
 
-    @Before("args(java.lang.String)")
-    public void before() {
+    @Before("args(java.lang.String) && args(address)") // ..代表任意个参数 *代表一个参数
+    public void before(String address) {
+        System.out.println("before address: " + address);
         System.out.println("match args string");
     }
 
-    @After("@args(com.spring.aop.aspect.factoryAOP.Listen)")
-    public void after() {
+    @After("@args(com.spring.aop.aspect.factoryAOP.Listen) && args(factory)")
+    public void after(Factory factory) {
+        factory.make();
         System.out.println("match @args listen");
     }
 }

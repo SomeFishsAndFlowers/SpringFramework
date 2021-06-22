@@ -13,4 +13,9 @@ public class PhoneFactory implements Factory {
     public void delivery(String address) {
         System.out.println("selling phone to " + address);
     }
+
+    @Override
+    public void testArgs(String address, int name) {
+
+    }
 }

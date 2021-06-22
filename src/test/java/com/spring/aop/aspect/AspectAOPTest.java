@@ -27,11 +27,13 @@ public class AspectAOPTest {
     @Test
     public void test1() {
         FoodFactory foodFactory = (FoodFactory) context.getBean("foodFactory");
-        foodFactory.make();
-        System.out.println("--------------------");
+//        foodFactory.make();
+//        System.out.println("--------------------");
         foodFactory.delivery("beijing");
+//        System.out.println("--------------------");
+//        foodFactory.testArgsAnnotation((FreshFactory) context.getBean("freshFactory"));
         System.out.println("--------------------");
-        foodFactory.testArgsAnnotation((FreshFactory) context.getBean("freshFactory"));
+        foodFactory.testArgs("123", 123);
     }
 
 }
