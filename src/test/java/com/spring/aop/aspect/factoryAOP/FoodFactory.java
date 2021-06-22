@@ -17,7 +17,7 @@ public class FoodFactory implements Factory {
         System.out.println("selling food to " + address);
     }
 
-    public void testArgsAnnotation(FreshFactory freshFactory) {
+    public void testArgsAnnotation(FoodFactory freshFactory) {
 
     }
 }

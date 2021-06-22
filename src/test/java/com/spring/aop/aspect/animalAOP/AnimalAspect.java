@@ -1,6 +1,7 @@
 package com.spring.aop.aspect.animalAOP;
 
 
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
@@ -37,8 +38,10 @@ public class AnimalAspect {
         System.out.println("afterReturn");
     }
 
-    @AfterThrowing("cuttingPoint()")
-    public void afterThrow() {
+    @AfterThrowing(value = "cuttingPoint()", throwing = "ex")
+    public void afterThrow(JoinPoint joinPoint, Exception ex) {
+        System.out.println(joinPoint);
+        System.out.println(ex);
         System.out.println("afterThrow");
     }
 
