@@ -135,21 +135,13 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     private void initStrategies(ApplicationContext context) {
-
         initMultipartResolver(context);
-
         initLocaleResolver(context);
-
         initHandlerMappings(context);
-
         initHandlerAdapters(context);
-
         initHandlerExceptionResolvers(context);
-
         initRequestToViewNameTranslator(context);
-
         initViewResolvers(context);
-
         initFlashMapManager(context);
     }
 

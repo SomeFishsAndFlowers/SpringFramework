@@ -2,6 +2,7 @@ package com.spring.aop.aspect;
 
 import com.spring.aop.aspect.animalAOP.Animal;
 import com.spring.aop.aspect.config.AspectConfig;
+import com.spring.aop.aspect.factoryAOP.Factory;
 import com.spring.aop.aspect.factoryAOP.FoodFactory;
 import com.spring.aop.aspect.factoryAOP.FreshFactory;
 import org.junit.Test;
@@ -33,6 +34,13 @@ public class AspectAOPTest {
 //        System.out.println("--------------------");
 //        foodFactory.testArgsAnnotation((FreshFactory) context.getBean("freshFactory"));
         System.out.println("--------------------");
+        foodFactory.testArgs("123", 123);
+    }
+
+    @Test
+    public void test3() {
+        Factory foodFactory = (Factory) context.getBean("foodFactory");
+        foodFactory.delivery("beijing");
         foodFactory.testArgs("123", 123);
     }
 
