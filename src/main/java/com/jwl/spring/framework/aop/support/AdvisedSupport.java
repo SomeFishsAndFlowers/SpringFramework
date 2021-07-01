@@ -1,9 +1,9 @@
 package com.jwl.spring.framework.aop.support;
 
 import com.jwl.spring.framework.aop.AopConfig;
-import com.jwl.spring.framework.aop.intercept.AfterReturningAdvice;
-import com.jwl.spring.framework.aop.intercept.AfterThrowingAdvice;
-import com.jwl.spring.framework.aop.intercept.MethodBeforeAdvice;
+import com.jwl.spring.framework.aop.aspect.AfterReturningAdvice;
+import com.jwl.spring.framework.aop.aspect.AfterThrowingAdvice;
+import com.jwl.spring.framework.aop.aspect.MethodBeforeAdvice;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -70,7 +70,7 @@ public class AdvisedSupport {
                 .replaceAll("\\)", "\\\\)");
 
         String pointCutForClass = pointCut.substring(0, pointCut.lastIndexOf("\\(") - 4);
-        pointCutClassPattern = Pattern.compile("class" + pointCutForClass.substring(pointCutForClass.lastIndexOf(" " + 1)));
+        pointCutClassPattern = Pattern.compile("class " + pointCutForClass.substring(pointCutForClass.lastIndexOf(" ") + 1));
 
         methodCache = new HashMap<>(8);
         Pattern pattern = Pattern.compile(pointCut);
@@ -81,7 +81,7 @@ public class AdvisedSupport {
             for (Method method : aspectClass.getMethods()) {
                 aspectMethods.put(method.getName(), method);
             }
-            for (Method m : aspectClass.getMethods()) {
+            for (Method m : targetClass.getMethods()) {
                 String methodString = m.toString();
                 if (methodString.contains("throws")) {
                     methodString = methodString.substring(0, methodString.lastIndexOf("throws")).trim();

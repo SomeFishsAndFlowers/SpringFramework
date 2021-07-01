@@ -9,8 +9,9 @@ import com.jwl.spring.framework.annotation.Service;
 @Service
 public class ModifiedServiceImpl implements IModifiedService {
     @Override
-    public String add(String name, String addr) {
-        return "modifiedService add, name=" + name + ", addr=" + addr;
+    public String add(String name, String addr) throws Exception {
+        throw new Exception("测试抛出异常");
+//        return "modifiedService add, name=" + name + ", addr=" + addr;
     }
 
     @Override

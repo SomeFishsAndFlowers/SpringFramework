@@ -33,7 +33,7 @@ public class MyController {
 
     @RequestMapping("/add*.json")
     public ModelAndView add(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("name") String name, @RequestParam("addr") String addr) {
+            @RequestParam("name") String name, @RequestParam("addr") String addr) throws Exception {
         String result = modifiedService.add(name, addr);
         return out(response, result);
     }
@@ -53,7 +53,6 @@ public class MyController {
     }
 
     private ModelAndView out(HttpServletResponse response, String result) {
-
         try {
             response.setHeader("Content-Type", "text/json;charset=utf-8");
             response.getWriter().write(result);

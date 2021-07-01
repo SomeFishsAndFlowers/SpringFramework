@@ -1,12 +1,14 @@
 package com.jwl.spring.framework.aop;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * aop配置信息类
  * @author wenlo
  */
-@Data
+@Getter
+@Setter
 public class AopConfig {
 
     private String pointCut;

@@ -8,9 +8,10 @@ public interface IModifiedService {
      * add
      * @param name name
      * @param addr addr
-     * @return string
+     * @return r
+     * @throws Exception e
      */
-    String add(String name, String addr);
+    String add(String name, String addr) throws Exception;
 
     /**
      * edit

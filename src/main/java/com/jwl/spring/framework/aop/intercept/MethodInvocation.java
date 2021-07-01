@@ -37,6 +37,7 @@ public class MethodInvocation implements JoinPoint {
     }
 
     public Object proceed() throws Throwable {
+        // 如果拦截器链为空，则直接调用目标方法
         if (currentInterceptorIndex == interceptorsAndDynamicMethodMatchers.size() - 1) {
             return method.invoke(target, arguments);
         }

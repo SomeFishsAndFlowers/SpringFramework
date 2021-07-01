@@ -3,6 +3,11 @@ package com.jwl.spring.framework.context;
 import com.jwl.spring.framework.annotation.Controller;
 import com.jwl.spring.framework.annotation.Service;
 import com.jwl.spring.framework.annotation.Autowired;
+import com.jwl.spring.framework.aop.AopConfig;
+import com.jwl.spring.framework.aop.AopProxy;
+import com.jwl.spring.framework.aop.CglibAopProxy;
+import com.jwl.spring.framework.aop.JdkDynamicAopProxy;
+import com.jwl.spring.framework.aop.support.AdvisedSupport;
 import com.jwl.spring.framework.beans.BeanWrapper;
 import com.jwl.spring.framework.beans.config.BeanDefinition;
 import com.jwl.spring.framework.beans.config.BeanPostProcessor;
@@ -101,7 +106,7 @@ public class ApplicationContext extends DefaultListableBeanFactory implements Be
         try {
             //生成通知事件
             BeanPostProcessor beanPostProcessor = new BeanPostProcessor();
-            Object instance = instanceBean(beanDefinition);
+            Object instance = instantiateBean(beanDefinition);
             if (null == instance) {
                 return null;
             }
@@ -159,12 +164,9 @@ public class ApplicationContext extends DefaultListableBeanFactory implements Be
         }
     }
 
-    private Object instanceBean(BeanDefinition beanDefinition) {
-
+    private Object instantiateBean(BeanDefinition beanDefinition) {
         Object instance = null;
-
         String className = beanDefinition.getBeanClassName();
-
         try {
             if (factoryBeanObjectCache.containsKey(className)) {
                 instance = factoryBeanObjectCache.get(className);
@@ -172,14 +174,42 @@ public class ApplicationContext extends DefaultListableBeanFactory implements Be
             else {
                 Class<?> clazz = Class.forName(className);
                 instance = clazz.newInstance();
+
+                AdvisedSupport config = instantiationAopConfig(beanDefinition);
+                config.setTarget(instance);
+                config.setTargetClass(clazz);
+
+                if (config.pointCutMatch()) {
+                    instance = createProxy(config).getProxy();
+                }
                 factoryBeanObjectCache.put(className, instance);
             }
             return instance;
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return null;
+    }
+
+    private AopProxy createProxy(AdvisedSupport config) {
+
+        Class<?> targetClass = config.getTargetClass();
+        if (targetClass.getInterfaces().length > 0) {
+            return new JdkDynamicAopProxy(config);
+        }
+        return new CglibAopProxy(config);
+    }
+
+    private AdvisedSupport instantiationAopConfig(BeanDefinition beanDefinition) {
+
+        AopConfig config = new AopConfig();
+        config.setPointCut(reader.getConfig().getProperty("pointCut"));
+        config.setAspectClass(reader.getConfig().getProperty("aspectClass"));
+        config.setAspectBefore(reader.getConfig().getProperty("aspectBefore"));
+        config.setAspectAfter(reader.getConfig().getProperty("aspectAfter"));
+        config.setAspectAfterThrow(reader.getConfig().getProperty("aspectAfterThrow"));
+        config.setAspectAfterThrowingName(reader.getConfig().getProperty("aspectAfterThrowingName"));
+        return new AdvisedSupport(config);
     }
 
     @Override
